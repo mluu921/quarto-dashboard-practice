@@ -1,25 +1,103 @@
 ---
-title: "Untitled"
-format: dashboard
+title: "Palmer Penguins"
+format:
+  dashboard:
+    orientation: columns
+editor_options: 
+  chunk_output_type: console
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
 ```{r}
-1 + 1
+#| include: false
+library(tidyverse)
+library(palmerpenguins)
+library(gt)
+library(plotly)
+library(gtsummary)
+library(labelled)
+
+data <- palmerpenguins::penguins
+
+data <- data |> 
+  set_variable_labels(
+    island = 'Island',
+    species = 'Species',
+    bill_length_mm = 'Bill Length (mm)',
+    bill_depth_mm = 'Bill Depth (mm)',
+    flipper_length_mm = 'Flipper Length (mm)',
+    body_mass_g = 'Body Mass (g)',
+    sex = 'Sex',
+    year = 'Year')
+
 ```
 
-You can add options to executable code like this 
+# Analysis
+
+## 
 
 ```{r}
-#| echo: false
-2 * 2
+data |>
+  select(-year) |>
+  tbl_summary(
+    by = species,
+    missing = 'no',
+    type = list(all_continuous() ~ 'continuous2')
+  ) |>
+  bold_labels() |>
+  add_p()
+
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+
+## 
+
+```{r}
+plot_ly(
+  data,
+  x = ~ bill_length_mm,
+  y = ~ bill_depth_mm,
+  z = ~ flipper_length_mm,
+  color = ~ species
+)
+```
+
+```{r}
+local({
+  plot <-
+    ggplot(data, aes(x = species, y = bill_length_mm, fill = species)) +
+    geom_boxplot() +
+    theme_light() + 
+    scale_fill_manual(
+      values = c(
+        '#64c4a4',
+        '#fb8c64',
+        '#8da4c8'
+      )
+    )
+  
+  ggplotly(plot)
+})
+```
+
+
+# Raw Data
+
+```{r}
+
+data |>
+  gt() |>
+  opt_interactive(
+    use_compact_mode = TRUE,
+    use_highlight = TRUE,
+    use_sorting = TRUE,
+    use_pagination = TRUE,
+    use_search = TRUE,
+    use_filters = TRUE,
+    use_resizers = FALSE,
+    use_page_size_select = TRUE,
+    page_size_default = 50
+  )
+
+```
+
+
