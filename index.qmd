@@ -57,7 +57,8 @@ plot_ly(
   x = ~ bill_length_mm,
   y = ~ bill_depth_mm,
   z = ~ flipper_length_mm,
-  color = ~ species
+  color = ~ species,
+  size = 2
 )
 ```
 
